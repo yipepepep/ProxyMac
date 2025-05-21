@@ -1,0 +1,2725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mac OS Proxy Settings Simulator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* General Styles */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            height: 100vh;
+            color: #333;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        /* Embedded Background Image (Base64 would go here in a real implementation) */
+        /* Using background-color as fallback */
+        body {
+            background-color: #1e3c72;
+        }
+
+        /* Mac OS Container */
+        .mac-os {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        /* Mac OS Menu Bar */
+        .mac-menu-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 24px;
+            background-color: rgba(30, 60, 114, 0.8);
+            backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: space-between;
+            padding: 0 15px;
+            color: white;
+            font-size: 14px;
+            z-index: 1000;
+            box-shadow: 0 1px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .mac-menu-left, .mac-menu-right {
+            display: flex;
+            align-items: center;
+            height: 100%;
+        }
+
+        .mac-menu-item {
+            padding: 0 8px;
+            cursor: pointer;
+            height: 100%;
+            display: flex;
+            align-items: center;
+        }
+
+        .mac-menu-item:hover, .mac-menu-item.active {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .mac-apple-logo {
+            font-size: 16px;
+            padding: 0 10px;
+            cursor: pointer;
+        }
+
+        .mac-user {
+            font-size: 16px;
+        }
+
+        /* Mac OS Desktop */
+        .mac-desktop {
+            position: relative;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Desktop Icons */
+        .desktop-icons {
+            position: absolute;
+            top: 45px;
+            left: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .desktop-icon {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 80px;
+            cursor: pointer;
+        }
+
+        .desktop-icon i {
+            font-size: 40px;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 5px;
+            filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.3));
+        }
+
+        .desktop-icon span {
+            color: #fff;
+            font-size: 12px;
+            text-align: center;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+            background-color: rgba(0, 0, 0, 0.3);
+            padding: 2px 4px;
+            border-radius: 4px;
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .desktop-icon:hover span {
+            background-color: rgba(70, 130, 180, 0.7);
+        }
+
+        /* Mac OS Dock */
+        .mac-dock-container {
+            position: absolute;
+            bottom: 5px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: center;
+            z-index: 900;
+        }
+
+        .mac-dock {
+            background: rgba(30, 60, 114, 0.25);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            display: flex;
+            padding: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3), inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+            align-items: flex-end;
+            border: 1px solid rgba(127, 127, 213, 0.2);
+        }
+
+        .mac-dock-item {
+            width: 50px;
+            height: 50px;
+            margin: 0 5px;
+            border-radius: 12px;
+            background-color: rgba(255, 255, 255, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            color: #ffffff;
+            transition: all 0.3s;
+            cursor: pointer;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+            position: relative;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .mac-dock-item:hover {
+            transform: scale(1.2) translateY(-10px);
+            margin: 0 8px;
+        }
+
+        .mac-dock-item.active {
+            position: relative;
+        }
+
+        .mac-dock-item.active::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background-color: #fff;
+        }
+
+        .mac-dock-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: 10px;
+        }
+
+        .mac-dock-divider {
+            width: 1px;
+            height: 35px;
+            background-color: rgba(255, 255, 255, 0.4);
+            margin: 0 5px;
+            align-self: center;
+        }
+
+        /* Mac OS Window */
+        .mac-window {
+            position: absolute;
+            top: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 780px;
+            background-color: rgba(245, 245, 247, 0.85);
+            border-radius: 12px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+            overflow: hidden;
+            z-index: 100;
+            max-height: calc(100vh - 150px);
+            display: flex;
+            flex-direction: column;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .mac-window-header {
+            background: linear-gradient(to bottom, #2c5195, #1e3c72);
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid rgba(127, 127, 213, 0.3);
+        }
+
+        .mac-window-buttons {
+            display: flex;
+            gap: 8px;
+            margin-right: 15px;
+        }
+
+        .mac-btn {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            cursor: pointer;
+        }
+
+        .mac-btn-close {
+            background-color: #ff5f57;
+            border: 1px solid #e33e32;
+        }
+
+        .mac-btn-minimize {
+            background-color: #ffbd2e;
+            border: 1px solid #e09e1d;
+        }
+
+        .mac-btn-maximize {
+            background-color: #28c940;
+            border: 1px solid #17aa2a;
+        }
+
+        .mac-window-title {
+            font-size: 14px;
+            font-weight: 500;
+            text-align: center;
+            flex-grow: 1;
+            color: #ffffff;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        }
+
+        .mac-window-content {
+            padding: 20px;
+            overflow-y: auto;
+            flex-grow: 1;
+            background-color: #fff;
+        }
+
+        /* Finder Specific Styles */
+        .finder-content {
+            display: flex;
+            padding: 0;
+            height: 450px;
+        }
+
+        .finder-search {
+            margin-left: auto;
+            margin-right: 20px;
+        }
+
+        .finder-search input {
+            padding: 4px 10px;
+            border: 1px solid #ccc;
+            border-radius: 15px;
+            font-size: 12px;
+            width: 150px;
+            background-color: #f0f0f0;
+        }
+
+        .finder-sidebar {
+            width: 200px;
+            background-color: #f5f5f7;
+            border-right: 1px solid #e0e0e0;
+            padding: 15px 0;
+        }
+
+        .finder-section {
+            margin-bottom: 20px;
+        }
+
+        .finder-section h3 {
+            font-size: 12px;
+            color: #888;
+            padding: 0 15px;
+            margin: 5px 0;
+        }
+
+        .finder-section ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .finder-section li {
+            display: flex;
+            align-items: center;
+            padding: 5px 15px;
+            font-size: 13px;
+            color: #333;
+            cursor: pointer;
+        }
+
+        .finder-section li:hover {
+            background-color: #e0e0e0;
+        }
+
+        .finder-section li.active {
+            background-color: #0069d9;
+            color: white;
+        }
+
+        .finder-section li i {
+            margin-right: 8px;
+            font-size: 14px;
+            width: 16px;
+            text-align: center;
+        }
+
+        .finder-main {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .finder-path {
+            padding: 8px 15px;
+            border-bottom: 1px solid #e0e0e0;
+            font-size: 13px;
+            color: #666;
+            background-color: #f9f9f9;
+        }
+
+        .finder-files {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 15px;
+            padding: 15px;
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+
+        .file-icon {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .file-icon i {
+            font-size: 40px;
+            color: #0069d9;
+            margin-bottom: 5px;
+        }
+
+        .file-icon span {
+            font-size: 12px;
+            color: #333;
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .file-icon:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+            border-radius: 5px;
+        }
+
+        .file-icon.app-highlight {
+            position: relative;
+        }
+
+        .file-icon.app-highlight::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background-color: #0069d9;
+        }
+
+        /* System Preferences Grid */
+        .mac-grid-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            padding: 10px;
+        }
+
+        .mac-grid-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 15px 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            text-align: center;
+        }
+
+        .mac-grid-item:hover {
+            background-color: #f0f0f0;
+        }
+
+        .mac-grid-item i {
+            font-size: 28px;
+            margin-bottom: 8px;
+            color: #0071e3;
+        }
+
+        .mac-grid-item span {
+            font-size: 13px;
+            color: #333;
+        }
+
+        /* Network Settings Specific Styles */
+        .network-content {
+            display: flex;
+            padding: 0;
+            height: 450px;
+        }
+
+        .network-sidebar {
+            width: 220px;
+            background-color: #f5f5f7;
+            border-right: 1px solid #e0e0e0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .network-interfaces-title {
+            padding: 10px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            align-items: center;
+        }
+
+        .network-interfaces-title h3 {
+            font-size: 13px;
+            margin: 0;
+            flex-grow: 1;
+            color: #666;
+        }
+
+        .mac-action-btn {
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            background: linear-gradient(to bottom, #ffffff, #f0f0f0);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 5px;
+            cursor: pointer;
+        }
+
+        .mac-action-btn i {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .network-interfaces-list {
+            padding: 10px;
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+
+        .network-interface {
+            display: flex;
+            align-items: center;
+            padding: 8px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 5px;
+        }
+
+        .network-interface:hover {
+            background-color: #f0f0f0;
+        }
+
+        .network-interface.active {
+            background-color: #d8d8d8;
+        }
+
+        .interface-icon {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+        }
+
+        .interface-icon i {
+            color: #0071e3;
+            font-size: 16px;
+        }
+
+        .interface-details {
+            flex-grow: 1;
+        }
+
+        .interface-name {
+            font-size: 13px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .interface-status {
+            font-size: 11px;
+            color: #666;
+        }
+
+        .interface-status.connected {
+            color: #28c940;
+        }
+
+        .network-interface-actions {
+            padding: 10px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .mac-assist-btn {
+            width: 100%;
+            padding: 6px;
+            background: linear-gradient(to bottom, #ffffff, #f0f0f0);
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #333;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mac-assist-btn i {
+            margin-right: 5px;
+            color: #0071e3;
+        }
+
+        .network-details {
+            flex-grow: 1;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .interface-status-bar {
+            display: flex;
+            align-items: center;
+            background-color: #f8f8f8;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .status-indicator.connected {
+            background-color: #28c940;
+        }
+
+        .interface-settings {
+            flex-grow: 1;
+        }
+
+        .setting-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .setting-row label {
+            width: 120px;
+            font-size: 13px;
+            color: #333;
+        }
+
+        .setting-value {
+            font-size: 13px;
+            color: #333;
+        }
+
+        .mac-select {
+            padding: 5px 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 13px;
+            background-color: #fff;
+            width: 150px;
+        }
+
+        .auto-connect-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+            margin-left: 120px;
+        }
+
+        .auto-connect-row label {
+            font-size: 13px;
+            margin-left: 5px;
+            color: #333;
+        }
+
+        .advanced-button-row {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 15px;
+        }
+
+        .mac-btn-advanced {
+            padding: 6px 10px;
+            background: linear-gradient(to bottom, #ffffff, #f0f0f0);
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #333;
+            cursor: pointer;
+        }
+
+        .interface-actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 15px;
+            gap: 10px;
+        }
+
+        .mac-btn-apply {
+            padding: 6px 10px;
+            background: linear-gradient(to bottom, #4da5fe, #2b78ff);
+            border: 1px solid #1a60d6;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        .mac-btn-cancel {
+            padding: 6px 10px;
+            background: linear-gradient(to bottom, #ffffff, #f0f0f0);
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #333;
+            cursor: pointer;
+        }
+
+        /* Advanced Network Settings Specific Styles */
+        .advanced-settings-content {
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            height: 500px;
+        }
+
+        .mac-tabs {
+            display: flex;
+            background-color: #f0f0f0;
+            border-bottom: 1px solid #d0d0d0;
+            overflow-x: auto;
+        }
+
+        .mac-tab {
+            padding: 8px 15px;
+            font-size: 13px;
+            color: #333;
+            cursor: pointer;
+            white-space: nowrap;
+            border-right: 1px solid #e0e0e0;
+        }
+
+        .mac-tab:hover {
+            background-color: #e5e5e5;
+        }
+
+        .mac-tab.active {
+            background-color: #fff;
+            border-bottom: 2px solid #0071e3;
+        }
+
+        .mac-tab-content {
+            padding: 15px;
+            flex-grow: 1;
+            overflow-y: auto;
+            background-color: #fff;
+        }
+
+        .mac-proxy-settings {
+            display: flex;
+            height: 100%;
+        }
+
+        .mac-protocol-list {
+            width: 200px;
+            border-right: 1px solid #e0e0e0;
+            padding-right: 15px;
+            overflow-y: auto;
+        }
+
+        .mac-protocol-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 0;
+            font-size: 13px;
+            color: #333;
+        }
+
+        .mac-protocol-item input[type="checkbox"] {
+            margin-right: 8px;
+        }
+
+        .bypass-protocol {
+            display: block;
+            border-top: 1px solid #e0e0e0;
+            margin-top: 10px;
+            padding-top: 10px;
+        }
+
+        .bypass-title {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .mac-proxy-details {
+            flex-grow: 1;
+            padding-left: 15px;
+            overflow-y: auto;
+        }
+
+        .proxy-info-text {
+            color: #666;
+            font-size: 13px;
+            margin-top: 0;
+        }
+
+        .proxy-detail-panel {
+            width: 100%;
+        }
+
+        .proxy-detail-panel h3 {
+            font-size: 15px;
+            margin-top: 0;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .proxy-setting-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+
+        .proxy-setting-row label {
+            font-size: 13px;
+            color: #333;
+            margin-right: 8px;
+        }
+
+        .mac-input {
+            padding: 5px 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 13px;
+            margin-right: 12px;
+        }
+
+        .mac-input.small-input {
+            width: 60px;
+        }
+
+        .proxy-auth-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .proxy-auth-row input[type="checkbox"] {
+            margin-right: 8px;
+        }
+
+        .proxy-bypass-container {
+            margin-top: 15px;
+        }
+
+        .bypass-label {
+            font-size: 13px;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .mac-textarea {
+            width: calc(100% - 20px);
+            height: 80px;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 13px;
+            margin-bottom: 5px;
+            resize: vertical;
+        }
+
+        .bypass-help {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .proxy-socks-version {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .proxy-socks-version label {
+            margin-right: 10px;
+            font-size: 13px;
+            color: #333;
+        }
+
+        .proxy-radio-group {
+            display: flex;
+            align-items: center;
+        }
+
+        .proxy-radio-group input[type="radio"] {
+            margin-right: 5px;
+        }
+
+        .proxy-radio-group label {
+            margin-right: 15px;
+            font-size: 13px;
+            color: #333;
+        }
+
+        .proxy-setting-info {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .mac-button-row {
+            display: flex;
+            justify-content: flex-end;
+            padding: 12px;
+            background-color: #f5f5f7;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .mac-btn-cancel, .mac-btn-ok {
+            padding: 6px 10px;
+            border-radius: 4px;
+            font-size: 13px;
+            cursor: pointer;
+            margin-left: 8px;
+        }
+
+        .mac-btn-cancel {
+            background: linear-gradient(to bottom, #ffffff, #f0f0f0);
+            border: 1px solid #ccc;
+            color: #333;
+        }
+
+        .mac-btn-ok {
+            background: linear-gradient(to bottom, #4da5fe, #2b78ff);
+            border: 1px solid #1a60d6;
+            color: #fff;
+        }
+
+        /* Highlight for active proxy setting */
+        .mac-protocol-item.highlight {
+            background-color: #e1f5fe;
+        }
+
+        /* Safari Browser Window Styles */
+        .safari-content {
+            background-color: #fff;
+            padding: 0;
+        }
+
+        .safari-tabs {
+            display: flex;
+            align-items: center;
+            background-color: #f0f0f0;
+            padding: 5px 10px 0;
+            border-radius: 5px 5px 0 0;
+            margin-right: auto;
+        }
+
+        .safari-tab {
+            display: flex;
+            align-items: center;
+            background-color: #fff;
+            border-radius: 5px 5px 0 0;
+            padding: 5px 10px;
+            margin-right: 5px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .safari-tab.active {
+            background-color: #fff;
+            border-bottom: none;
+        }
+
+        .safari-tab span {
+            margin-right: 10px;
+        }
+
+        .safari-tab-close {
+            background: none;
+            border: none;
+            font-size: 10px;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .safari-tab-close:hover {
+            color: #666;
+        }
+
+        .safari-new-tab {
+            background: none;
+            border: none;
+            padding: 5px;
+            font-size: 12px;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .safari-controls {
+            display: flex;
+            align-items: center;
+            margin-right: 10px;
+        }
+
+        .safari-control-btn {
+            background: none;
+            border: none;
+            color: #666;
+            font-size: 12px;
+            padding: 5px;
+            cursor: pointer;
+        }
+
+        .safari-address-bar {
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            background-color: #f5f5f5;
+            border-radius: 5px;
+            padding: 5px 10px;
+            font-size: 12px;
+            margin-right: 10px;
+        }
+
+        .safari-address-bar i {
+            color: #4CAF50;
+            margin-right: 5px;
+        }
+
+        .safari-address-bar input {
+            flex-grow: 1;
+            border: none;
+            background: none;
+            outline: none;
+            font-size: 12px;
+            color: #333;
+        }
+
+        .safari-action-buttons {
+            display: flex;
+            align-items: center;
+        }
+
+        .safari-action-btn {
+            background: none;
+            border: none;
+            color: #666;
+            font-size: 12px;
+            padding: 5px;
+            cursor: pointer;
+        }
+
+        .ip-check-result {
+            padding: 20px;
+        }
+
+        .ip-result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .ip-result-header h2 {
+            font-size: 24px;
+            color: #333;
+            margin: 0;
+        }
+
+        .check-ip-btn {
+            background-color: #0071e3;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .check-ip-btn:hover {
+            background-color: #005bb5;
+        }
+
+        .ip-result-loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 30px;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #0071e3;
+            animation: spin 1s linear infinite;
+            margin-bottom: 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .ip-result-content {
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .ip-result-item {
+            display: flex;
+            margin-bottom: 15px;
+        }
+
+        .result-label {
+            width: 120px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .result-value {
+            flex-grow: 1;
+            color: #333;
+        }
+
+        #proxy-indicator {
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        .status-not-detected {
+            background-color: #f2f2f2;
+            color: #666;
+        }
+
+        .status-detected {
+            background-color: #d8f5e5;
+            color: #0d904f;
+        }
+
+        .ip-history {
+            margin-top: 30px;
+        }
+
+        .ip-history h3 {
+            font-size: 18px;
+            color: #555;
+            margin-bottom: 15px;
+        }
+
+        .ip-history-list {
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            padding: 15px;
+        }
+
+        .ip-history-item {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            font-size: 14px;
+        }
+
+        .ip-history-item:last-child {
+            border-bottom: none;
+        }
+
+        .ip-history-time {
+            color: #999;
+            font-size: 12px;
+            margin-top: 3px;
+        }
+
+        /* Notification Center */
+        .notification-center {
+            position: absolute;
+            top: 24px;
+            right: 0;
+            width: 320px;
+            height: calc(100% - 24px);
+            background-color: rgba(30, 60, 114, 0.6);
+            backdrop-filter: blur(15px);
+            box-shadow: -5px 0 20px rgba(0, 0, 0, 0.2);
+            z-index: 950;
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+            border: 1px solid rgba(127, 127, 213, 0.3);
+        }
+
+        .notification-header {
+            padding: 15px;
+            text-align: center;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .notification-date {
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: 5px;
+            color: #fff;
+        }
+
+        .notification-weather {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .notification-list {
+            padding: 15px;
+        }
+
+        .notification-item {
+            background-color: rgba(255, 255, 255, 0.7);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+            box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .notification-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+        .notification-content {
+            font-size: 13px;
+            color: #555;
+            margin-bottom: 5px;
+        }
+
+        .notification-time {
+            font-size: 12px;
+            color: #888;
+            text-align: right;
+        }
+
+        /* Task Completion Message */
+        .task-complete {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1001;
+        }
+
+        .task-complete-content {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+            max-width: 80%;
+        }
+
+        .task-complete-content i {
+            font-size: 48px;
+            color: #28c940;
+            margin-bottom: 15px;
+        }
+
+        .task-complete-content h3 {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .task-complete-content p {
+            font-size: 16px;
+            margin-bottom: 20px;
+            color: #666;
+        }
+
+        .next-task-btn {
+            padding: 8px 16px;
+            background-color: #0071e3;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        /* Instructions Panel */
+        .instructions-panel {
+            position: absolute;
+            bottom: 70px;
+            right: 20px;
+            width: 300px;
+            background-color: rgba(30, 60, 114, 0.6);
+            backdrop-filter: blur(15px);
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            z-index: 1000;
+            border: 1px solid rgba(127, 127, 213, 0.3);
+            color: white;
+        }
+
+        .instructions-header {
+            background-color: rgba(42, 82, 152, 0.8);
+            padding: 10px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(127, 127, 213, 0.3);
+        }
+
+        .instructions-header h3 {
+            margin: 0;
+            font-size: 16px;
+            color: #ffffff;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        }
+
+        .instructions-toggle {
+            background: none;
+            border: none;
+            color: #ffffff;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .instructions-content {
+            padding: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .instructions-content p {
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .instructions-content ol {
+            margin: 0;
+            padding-left: 20px;
+        }
+
+        .instructions-content li {
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+        .current-task {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: rgba(255, 255, 255, 0.15);
+            border-radius: 5px;
+            border-left: 4px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .current-task h4 {
+            margin-top: 0;
+            margin-bottom: 5px;
+            font-size: 15px;
+            color: #ffffff;
+        }
+
+        .current-task p, .current-task ol, .current-task li {
+            margin: 0;
+            font-size: 14px;
+            color : rgb(0, 127, 162);
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 992px) {
+            .mac-window {
+                width: 95%;
+                max-height: calc(100vh - 100px);
+            }
+            
+            .mac-grid-container {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            
+            .network-content, 
+            .finder-content {
+                flex-direction: column;
+                height: auto;
+            }
+            
+            .network-sidebar,
+            .finder-sidebar {
+                width: 100%;
+                border-right: none;
+                border-bottom: 1px solid #e0e0e0;
+            }
+            
+            .network-interfaces-list {
+                display: flex;
+                overflow-x: auto;
+            }
+            
+            .network-interface {
+                flex: 0 0 auto;
+                margin-right: 10px;
+            }
+            
+            .mac-proxy-settings {
+                flex-direction: column;
+            }
+            
+            .mac-protocol-list {
+                width: 100%;
+                border-right: none;
+                border-bottom: 1px solid #e0e0e0;
+                padding-right: 0;
+                padding-bottom: 15px;
+            }
+            
+            .mac-proxy-details {
+                padding-left: 0;
+                padding-top: 15px;
+            }
+            
+            .instructions-panel {
+                bottom: 80px;
+                right: 10px;
+                width: 280px;
+            }
+            
+            .finder-files {
+                grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+            }
+        }
+
+        @media (max-width: 576px) {
+            .mac-menu-item {
+                padding: 0 5px;
+                font-size: 12px;
+            }
+            
+            .mac-grid-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .mac-dock-item {
+                width: 40px;
+                height: 40px;
+                font-size: 20px;
+            }
+            
+            .instructions-panel {
+                width: calc(100% - 20px);
+                right: 10px;
+            }
+            
+            .desktop-icons {
+                top: 30px;
+                left: 10px;
+            }
+            
+            .desktop-icon {
+                width: 65px;
+            }
+            
+            .desktop-icon i {
+                font-size: 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="mac-os">
+        <!-- Mac OS Desktop Menu Bar -->
+        <div class="mac-menu-bar">
+            <div class="mac-menu-left">
+                <div class="mac-apple-logo"><i class="fab fa-apple"></i></div>
+                <div class="mac-menu-item" id="finder-menu">Finder</div>
+                <div class="mac-menu-item" id="file-menu">File</div>
+                <div class="mac-menu-item" id="edit-menu">Edit</div>
+                <div class="mac-menu-item" id="view-menu">View</div>
+                <div class="mac-menu-item" id="go-menu">Go</div>
+                <div class="mac-menu-item" id="window-menu">Window</div>
+                <div class="mac-menu-item" id="help-menu">Help</div>
+            </div>
+            <div class="mac-menu-right">
+                <div class="mac-menu-item"><i class="fas fa-wifi"></i></div>
+                <div class="mac-menu-item"><i class="fas fa-battery-three-quarters"></i></div>
+                <div class="mac-menu-item"><i class="fas fa-volume-up"></i></div>
+                <div class="mac-menu-item" id="mac-clock">10:30 AM</div>
+                <div class="mac-menu-item mac-user"><i class="fas fa-user-circle"></i></div>
+            </div>
+        </div>
+
+        <!-- Mac OS Desktop -->
+        <div class="mac-desktop">
+            <!-- Desktop Icons -->
+            <div class="desktop-icons">
+                <div class="desktop-icon">
+                    <i class="fas fa-hdd"></i>
+                    <span>Macintosh HD</span>
+                </div>
+                
+                <div class="desktop-icon">
+                    <i class="fas fa-folder"></i>
+                    <span>Applications</span>
+                </div>
+                
+                <div class="desktop-icon">
+                    <i class="fas fa-folder"></i>
+                    <span>Documents</span>
+                </div>
+                
+                <div class="desktop-icon">
+                    <i class="fas fa-folder"></i>
+                    <span>Downloads</span>
+                </div>
+                
+                <div class="desktop-icon">
+                    <i class="fas fa-trash"></i>
+                    <span>Trash</span>
+                </div>
+            </div>
+
+            <!-- Mac OS System Preferences Window (initially hidden) -->
+            <div class="mac-window" id="system-preferences" style="display: none;">
+                <div class="mac-window-header">
+                    <div class="mac-window-buttons">
+                        <div class="mac-btn mac-btn-close" id="close-system-preferences"></div>
+                        <div class="mac-btn mac-btn-minimize"></div>
+                        <div class="mac-btn mac-btn-maximize"></div>
+                    </div>
+                    <div class="mac-window-title">System Preferences</div>
+                </div>
+                <div class="mac-window-content">
+                    <div class="mac-grid-container">
+                        <div class="mac-grid-item">
+                            <i class="fas fa-sliders-h"></i>
+                            <span>General</span>
+                        </div>
+                        <div class="mac-grid-item">
+                            <i class="fas fa-desktop"></i>
+                            <span>Desktop & Screen Saver</span>
+                        </div>
+                        <div class="mac-grid-item">
+                            <i class="fas fa-dock"></i>
+                            <span>Dock</span>
+                        </div>
+                        <div class="mac-grid-item">
+                            <i class="fas fa-magic"></i>
+                            <span>Mission Control</span>
+                        </div>
+                        <div class="mac-grid-item">
+                            <i class="fas fa-universal-access"></i>
+                            <span>Accessibility</span>
+                        </div>
+                        <div class="mac-grid-item mac-grid-item-network">
+                            <i class="fas fa-network-wired"></i>
+                            <span>Network</span>
+                        </div>
+                        <div class="mac-grid-item">
+                            <i class="fas fa-bluetooth"></i>
+                            <span>Bluetooth</span>
+                        </div>
+                        <div class="mac-grid-item">
+                            <i class="fas fa-share-alt"></i>
+                            <span>Sharing</span>
+                        </div>
+                        <div class="mac-grid-item">
+                            <i class="fas fa-users"></i>
+                            <span>Users & Groups</span>
+                        </div>
+                        <div class="mac-grid-item">
+                            <i class="fas fa-shield-alt"></i>
+                            <span>Security & Privacy</span>
+                        </div>
+                        <div class="mac-grid-item">
+                            <i class="fas fa-globe"></i>
+                            <span>Internet Accounts</span>
+                        </div>
+                        <div class="mac-grid-item">
+                            <i class="fas fa-keyboard"></i>
+                            <span>Keyboard</span>
+                        </div>
+                        <div class="mac-grid-item">
+                            <i class="fas fa-mouse-pointer"></i>
+                            <span>Mouse</span>
+                        </div>
+                        <div class="mac-grid-item">
+                            <i class="fas fa-magic"></i>
+                            <span>Trackpad</span>
+                        </div>
+                        <div class="mac-grid-item">
+                            <i class="fas fa-print"></i>
+                            <span>Printers & Scanners</span>
+                        </div>
+                        <div class="mac-grid-item">
+                            <i class="fas fa-volume-up"></i>
+                            <span>Sound</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mac OS Finder Window -->
+            <div class="mac-window" id="finder-window">
+                <div class="mac-window-header">
+                    <div class="mac-window-buttons">
+                        <div class="mac-btn mac-btn-close" id="close-finder"></div>
+                        <div class="mac-btn mac-btn-minimize"></div>
+                        <div class="mac-btn mac-btn-maximize"></div>
+                    </div>
+                    <div class="mac-window-title">Finder</div>
+                    <div class="finder-search">
+                        <input type="text" placeholder="Search">
+                    </div>
+                </div>
+                <div class="mac-window-content finder-content">
+                    <div class="finder-sidebar">
+                        <div class="finder-section">
+                            <h3>Favorites</h3>
+                            <ul>
+                                <li><i class="fas fa-desktop"></i> Desktop</li>
+                                <li><i class="fas fa-download"></i> Downloads</li>
+                                <li><i class="fas fa-file-alt"></i> Documents</li>
+                                <li class="active"><i class="fas fa-cog"></i> Applications</li>
+                            </ul>
+                        </div>
+                        <div class="finder-section">
+                            <h3>Locations</h3>
+                            <ul>
+                                <li><i class="fas fa-hdd"></i> Macintosh HD</li>
+                                <li><i class="fas fa-server"></i> Network</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="finder-main">
+                        <div class="finder-path">
+                            <span>Applications</span>
+                        </div>
+                        <div class="finder-files">
+                            <div class="file-icon" id="safari-icon">
+                                <i class="fab fa-safari"></i>
+                                <span>Safari</span>
+                            </div>
+                            <div class="file-icon" id="mail-icon">
+                                <i class="fas fa-envelope"></i>
+                                <span>Mail</span>
+                            </div>
+                            <div class="file-icon" id="messages-icon">
+                                <i class="fas fa-comment"></i>
+                                <span>Messages</span>
+                            </div>
+                            <div class="file-icon" id="maps-icon">
+                                <i class="fas fa-map"></i>
+                                <span>Maps</span>
+                            </div>
+                            <div class="file-icon app-highlight" id="system-preferences-icon">
+                                <i class="fas fa-cog"></i>
+                                <span>System Preferences</span>
+                            </div>
+                            <div class="file-icon" id="terminal-icon">
+                                <i class="fas fa-terminal"></i>
+                                <span>Terminal</span>
+                            </div>
+                            <div class="file-icon" id="photos-icon">
+                                <i class="fas fa-images"></i>
+                                <span>Photos</span>
+                            </div>
+                            <div class="file-icon" id="music-icon">
+                                <i class="fas fa-music"></i>
+                                <span>Music</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mac OS Safari Browser Window (initially hidden) -->
+            <div class="mac-window" id="safari-window" style="display: none;">
+                <div class="mac-window-header">
+                    <div class="mac-window-buttons">
+                        <div class="mac-btn mac-btn-close" id="close-safari"></div>
+                        <div class="mac-btn mac-btn-minimize"></div>
+                        <div class="mac-btn mac-btn-maximize"></div>
+                    </div>
+                    <div class="safari-tabs">
+                        <div class="safari-tab active">
+                            <span>IP Check</span>
+                            <button class="safari-tab-close"><i class="fas fa-times"></i></button>
+                        </div>
+                        <button class="safari-new-tab"><i class="fas fa-plus"></i></button>
+                    </div>
+                    <div class="safari-controls">
+                        <button class="safari-control-btn"><i class="fas fa-arrow-left"></i></button>
+                        <button class="safari-control-btn"><i class="fas fa-arrow-right"></i></button>
+                        <button class="safari-control-btn"><i class="fas fa-redo"></i></button>
+                    </div>
+                    <div class="safari-address-bar">
+                        <i class="fas fa-lock"></i>
+                        <input type="text" value="https://whatismyipaddress.com" readonly>
+                    </div>
+                    <div class="safari-action-buttons">
+                        <button class="safari-action-btn"><i class="fas fa-share"></i></button>
+                        <button class="safari-action-btn"><i class="fas fa-plus"></i></button>
+                    </div>
+                </div>
+                <div class="mac-window-content safari-content">
+                    <div class="ip-check-result">
+                        <div class="ip-result-header">
+                            <h2>Your IP Information</h2>
+                            <button class="check-ip-btn" id="check-ip-btn">Check My IP</button>
+                        </div>
+                        
+                        <div class="ip-result-loading" id="ip-loading">
+                            <div class="spinner"></div>
+                            <p>Looking up your IP address...</p>
+                        </div>
+                        
+                        <div class="ip-result-content" id="ip-results" style="display: none;">
+                            <div class="ip-result-item">
+                                <div class="result-label">IP Address:</div>
+                                <div class="result-value" id="ip-address">203.0.113.195</div>
+                            </div>
+                            <div class="ip-result-item">
+                                <div class="result-label">Location:</div>
+                                <div class="result-value" id="ip-location">New York, United States</div>
+                            </div>
+                            <div class="ip-result-item">
+                                <div class="result-label">ISP:</div>
+                                <div class="result-value" id="ip-isp">Example ISP Inc.</div>
+                            </div>
+                            <div class="ip-result-item">
+                                <div class="result-label">Proxy Status:</div>
+                                <div class="result-value" id="proxy-status">
+                                    <span id="proxy-indicator" class="status-not-detected">No Proxy Detected</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="ip-history">
+                            <h3>IP Check History</h3>
+                            <div class="ip-history-list" id="ip-history-list">
+                                <!-- IP history entries will be added here dynamically -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mac OS Network Settings Window (initially hidden) -->
+            <div class="mac-window" id="network-settings" style="display: none;">
+                <div class="mac-window-header">
+                    <div class="mac-window-buttons">
+                        <div class="mac-btn mac-btn-close" id="close-network-settings"></div>
+                        <div class="mac-btn mac-btn-minimize"></div>
+                        <div class="mac-btn mac-btn-maximize"></div>
+                    </div>
+                    <div class="mac-window-title">Network</div>
+                </div>
+                <div class="mac-window-content network-content">
+                    <div class="network-sidebar">
+                        <div class="network-interfaces-title">
+                            <h3>Network Interfaces</h3>
+                            <button class="mac-action-btn mac-action-plus"><i class="fas fa-plus"></i></button>
+                            <button class="mac-action-btn mac-action-gear"><i class="fas fa-cog"></i></button>
+                        </div>
+                        <div class="network-interfaces-list">
+                            <div class="network-interface active">
+                                <div class="interface-icon"><i class="fas fa-wifi"></i></div>
+                                <div class="interface-details">
+                                    <div class="interface-name">Wi-Fi</div>
+                                    <div class="interface-status connected">Connected</div>
+                                </div>
+                            </div>
+                            <div class="network-interface">
+                                <div class="interface-icon"><i class="fas fa-ethernet"></i></div>
+                                <div class="interface-details">
+                                    <div class="interface-name">Ethernet</div>
+                                    <div class="interface-status">Not Connected</div>
+                                </div>
+                            </div>
+                            <div class="network-interface">
+                                <div class="interface-icon"><i class="fas fa-globe"></i></div>
+                                <div class="interface-details">
+                                    <div class="interface-name">VPN</div>
+                                    <div class="interface-status">Not Connected</div>
+                                </div>
+                            </div>
+                            <div class="network-interface">
+                                <div class="interface-icon"><i class="fas fa-mobile-alt"></i></div>
+                                <div class="interface-details">
+                                    <div class="interface-name">iPhone USB</div>
+                                    <div class="interface-status">Not Connected</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="network-interface-actions">
+                            <button class="mac-assist-btn" id="assist-btn">
+                                <i class="fas fa-question-circle"></i> Assist Me...
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="network-details">
+                        <div class="interface-status-bar">
+                            <div class="status-indicator connected"></div>
+                            <span>Wi-Fi is connected to "Home Network" and has the IP address 192.168.1.5.</span>
+                        </div>
+                        
+                        <div class="interface-settings">
+                            <div class="setting-row">
+                                <label>Location:</label>
+                                <select class="mac-select">
+                                    <option>Automatic</option>
+                                    <option>Home</option>
+                                    <option>Work</option>
+                                    <option>Travel</option>
+                                </select>
+                            </div>
+                            
+                            <div class="setting-row">
+                                <label>Network Name:</label>
+                                <span class="setting-value">Home Network</span>
+                            </div>
+                            
+                            <div class="auto-connect-row">
+                                <input type="checkbox" id="auto-connect" checked>
+                                <label for="auto-connect">Automatically join this network</label>
+                            </div>
+                            
+                            <div class="setting-row">
+                                <label>IP Address:</label>
+                                <span class="setting-value">192.168.1.5</span>
+                            </div>
+                            
+                            <div class="setting-row">
+                                <label>Subnet Mask:</label>
+                                <span class="setting-value">255.255.255.0</span>
+                            </div>
+                            
+                            <div class="setting-row">
+                                <label>Router:</label>
+                                <span class="setting-value">192.168.1.1</span>
+                            </div>
+                            
+                            <div class="setting-row">
+                                <label>DNS:</label>
+                                <span class="setting-value">8.8.8.8, 8.8.4.4</span>
+                            </div>
+                            
+                            <div class="setting-row">
+                                <label>Search Domains:</label>
+                                <span class="setting-value">local</span>
+                            </div>
+                            
+                            <div class="advanced-button-row">
+                                <button class="mac-btn-advanced" id="advanced-btn">Advanced...</button>
+                            </div>
+                        </div>
+                        
+                        <div class="interface-actions">
+                            <button class="mac-action-btn mac-btn-cancel">Cancel</button>
+                            <button class="mac-action-btn mac-btn-apply">Apply</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mac OS Advanced Network Settings Window (initially hidden) -->
+            <div class="mac-window" id="advanced-network-settings" style="display: none; z-index: 101;">
+                <div class="mac-window-header">
+                    <div class="mac-window-buttons">
+                        <div class="mac-btn mac-btn-close" id="close-advanced-settings"></div>
+                        <div class="mac-btn mac-btn-minimize"></div>
+                        <div class="mac-btn mac-btn-maximize"></div>
+                    </div>
+                    <div class="mac-window-title">Wi-Fi Advanced Settings</div>
+                </div>
+                <div class="mac-window-content advanced-settings-content">
+                    <div class="mac-tabs">
+                        <div class="mac-tab">Wi-Fi</div>
+                        <div class="mac-tab">TCP/IP</div>
+                        <div class="mac-tab">DNS</div>
+                        <div class="mac-tab">WINS</div>
+                        <div class="mac-tab active" id="proxies-tab">Proxies</div>
+                        <div class="mac-tab">Hardware</div>
+                        <div class="mac-tab">802.1X</div>
+                    </div>
+                    
+                    <div class="mac-tab-content">
+                        <div class="mac-proxy-settings">
+                            <div class="mac-protocol-list">
+                                <div class="mac-protocol-item">
+                                    <input type="checkbox" id="web-proxy" class="proxy-checkbox">
+                                    <label for="web-proxy">Web Proxy (HTTP)</label>
+                                </div>
+                                <div class="mac-protocol-item">
+                                    <input type="checkbox" id="secure-web-proxy" class="proxy-checkbox">
+                                    <label for="secure-web-proxy">Secure Web Proxy (HTTPS)</label>
+                                </div>
+                                <div class="mac-protocol-item">
+                                    <input type="checkbox" id="ftp-proxy" class="proxy-checkbox">
+                                    <label for="ftp-proxy">FTP Proxy</label>
+                                </div>
+                                <div class="mac-protocol-item">
+                                    <input type="checkbox" id="socks-proxy" class="proxy-checkbox">
+                                    <label for="socks-proxy">SOCKS Proxy</label>
+                                </div>
+                                <div class="mac-protocol-item">
+                                    <input type="checkbox" id="streaming-proxy" class="proxy-checkbox">
+                                    <label for="streaming-proxy">Streaming Proxy (RTSP)</label>
+                                </div>
+                                <div class="mac-protocol-item">
+                                    <input type="checkbox" id="gopher-proxy" class="proxy-checkbox">
+                                    <label for="gopher-proxy">Gopher Proxy</label>
+                                </div>
+                                <div class="mac-protocol-item">
+                                    <input type="checkbox" id="auto-proxy-discovery" class="proxy-checkbox">
+                                    <label for="auto-proxy-discovery">Auto Proxy Discovery</label>
+                                </div>
+                                <div class="mac-protocol-item">
+                                    <input type="checkbox" id="auto-proxy-config" class="proxy-checkbox">
+                                    <label for="auto-proxy-config">Automatic Proxy Configuration</label>
+                                </div>
+                            </div>
+                            
+                            <div class="mac-proxy-details" id="proxy-details">
+                                <p class="proxy-info-text">Select a proxy protocol from the list on the left to configure it.</p>
+                                
+                                <!-- HTTP Proxy Details (initially hidden) -->
+                                <div class="proxy-detail-panel" id="web-proxy-panel" style="display: none;">
+                                    <h3>HTTP Proxy Configuration</h3>
+                                    <div class="proxy-setting-row">
+                                        <label>Proxy Server:</label>
+                                        <input type="text" class="mac-input" placeholder="proxy.example.com">
+                                        <label>Port:</label>
+                                        <input type="text" class="mac-input small-input" placeholder="8080">
+                                    </div>
+                                    <div class="proxy-auth-row">
+                                        <input type="checkbox" id="http-proxy-auth">
+                                        <label for="http-proxy-auth">Proxy server requires password</label>
+                                    </div>
+                                    <div class="proxy-setting-row proxy-auth-details" style="display: none;">
+                                        <label>Username:</label>
+                                        <input type="text" class="mac-input">
+                                        <label>Password:</label>
+                                        <input type="password" class="mac-input">
+                                    </div>
+                                    <div class="proxy-bypass-container">
+                                        <div class="bypass-label">Bypass proxy settings for these Hosts & Domains:</div>
+                                        <textarea class="mac-textarea" placeholder="localhost, 127.0.0.1, *.local">localhost, 127.0.0.1, *.local</textarea>
+                                        <div class="bypass-help">Separate domain names with commas or enter them on new lines.</div>
+                                    </div>
+                                </div>
+                                
+                                <!-- HTTPS Proxy Details (initially hidden) -->
+                                <div class="proxy-detail-panel" id="secure-web-proxy-panel" style="display: none;">
+                                    <h3>HTTPS Proxy Configuration</h3>
+                                    <div class="proxy-setting-row">
+                                        <label>Proxy Server:</label>
+                                        <input type="text" class="mac-input" placeholder="secure-proxy.example.com">
+                                        <label>Port:</label>
+                                        <input type="text" class="mac-input small-input" placeholder="443">
+                                    </div>
+                                    <div class="proxy-auth-row">
+                                        <input type="checkbox" id="https-proxy-auth">
+                                        <label for="https-proxy-auth">Proxy server requires password</label>
+                                    </div>
+                                    <div class="proxy-setting-row proxy-auth-details" style="display: none;">
+                                        <label>Username:</label>
+                                        <input type="text" class="mac-input">
+                                        <label>Password:</label>
+                                        <input type="password" class="mac-input">
+                                    </div>
+                                    <div class="proxy-bypass-container">
+                                        <div class="bypass-label">Bypass proxy settings for these Hosts & Domains:</div>
+                                        <textarea class="mac-textarea" placeholder="localhost, 127.0.0.1, *.local">localhost, 127.0.0.1, *.local</textarea>
+                                        <div class="bypass-help">Separate domain names with commas or enter them on new lines.</div>
+                                    </div>
+                                </div>
+                                
+                                <!-- SOCKS Proxy Details (initially hidden) -->
+                                <div class="proxy-detail-panel" id="socks-proxy-panel" style="display: none;">
+                                    <h3>SOCKS Proxy Configuration</h3>
+                                    <div class="proxy-setting-row">
+                                        <label>Proxy Server:</label>
+                                        <input type="text" class="mac-input" placeholder="socks.example.com">
+                                        <label>Port:</label>
+                                        <input type="text" class="mac-input small-input" placeholder="1080">
+                                    </div>
+                                    <div class="proxy-socks-version">
+                                        <label>SOCKS Proxy Version:</label>
+                                        <div class="proxy-radio-group">
+                                            <input type="radio" id="socks4" name="socks-version" checked>
+                                            <label for="socks4">SOCKS4</label>
+                                            <input type="radio" id="socks5" name="socks-version">
+                                            <label for="socks5">SOCKS5</label>
+                                        </div>
+                                    </div>
+                                    <div class="proxy-auth-row">
+                                        <input type="checkbox" id="socks-proxy-auth">
+                                        <label for="socks-proxy-auth">Proxy server requires password</label>
+                                    </div>
+                                    <div class="proxy-setting-row proxy-auth-details" style="display: none;">
+                                        <label>Username:</label>
+                                        <input type="text" class="mac-input">
+                                        <label>Password:</label>
+                                        <input type="password" class="mac-input">
+                                    </div>
+                                    <div class="proxy-bypass-container">
+                                        <div class="bypass-label">Bypass proxy settings for these Hosts & Domains:</div>
+                                        <textarea class="mac-textarea" placeholder="localhost, 127.0.0.1, *.local">localhost, 127.0.0.1, *.local</textarea>
+                                        <div class="bypass-help">Separate domain names with commas or enter them on new lines.</div>
+                                    </div>
+                                </div>
+                                
+                                <!-- FTP Proxy Details (initially hidden) -->
+                                <div class="proxy-detail-panel" id="ftp-proxy-panel" style="display: none;">
+                                    <h3>FTP Proxy Configuration</h3>
+                                    <div class="proxy-setting-row">
+                                        <label>Proxy Server:</label>
+                                        <input type="text" class="mac-input" placeholder="ftp-proxy.example.com">
+                                        <label>Port:</label>
+                                        <input type="text" class="mac-input small-input" placeholder="21">
+                                    </div>
+                                    <div class="proxy-auth-row">
+                                        <input type="checkbox" id="ftp-proxy-auth">
+                                        <label for="ftp-proxy-auth">Proxy server requires password</label>
+                                    </div>
+                                    <div class="proxy-setting-row proxy-auth-details" style="display: none;">
+                                        <label>Username:</label>
+                                        <input type="text" class="mac-input">
+                                        <label>Password:</label>
+                                        <input type="password" class="mac-input">
+                                    </div>
+                                    <div class="proxy-bypass-container">
+                                        <div class="bypass-label">Bypass proxy settings for these Hosts & Domains:</div>
+                                        <textarea class="mac-textarea" placeholder="localhost, 127.0.0.1, *.local">localhost, 127.0.0.1, *.local</textarea>
+                                        <div class="bypass-help">Separate domain names with commas or enter them on new lines.</div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Auto Proxy Config Details (initially hidden) -->
+                                <div class="proxy-detail-panel" id="auto-proxy-config-panel" style="display: none;">
+                                    <h3>Automatic Proxy Configuration</h3>
+                                    <div class="proxy-setting-row">
+                                        <label>URL:</label>
+                                        <input type="text" class="mac-input" placeholder="http://proxy.example.com/proxy.pac" style="width: 80%;">
+                                    </div>
+                                    <div class="proxy-setting-info">
+                                        Enter the URL of the PAC file that contains the proxy configuration rules.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mac-button-row">
+                        <button class="mac-btn-cancel" id="advanced-cancel">Cancel</button>
+                        <button class="mac-btn-ok" id="advanced-ok">OK</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Mac OS Notification Center (initially hidden) -->
+            <div class="notification-center" style="display: none;">
+                <div class="notification-header">
+                    <div class="notification-date">Wednesday, May 20</div>
+                    <div class="notification-weather">
+                        <i class="fas fa-sun"></i> 72°F
+                    </div>
+                </div>
+                <div class="notification-list">
+                    <div class="notification-item">
+                        <div class="notification-title">Network Settings Modified</div>
+                        <div class="notification-content">Your network settings have been updated successfully.</div>
+                        <div class="notification-time">10 minutes ago</div>
+                    </div>
+                    <div class="notification-item">
+                        <div class="notification-title">Software Update</div>
+                        <div class="notification-content">Updates are available for your Mac.</div>
+                        <div class="notification-time">2 hours ago</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mac OS Dock -->
+            <div class="mac-dock-container">
+                <div class="mac-dock">
+                    <div class="mac-dock-item" id="finder-dock">
+                        <i class="fas fa-folder"></i>
+                    </div>
+                    <div class="mac-dock-item" id="safari-dock">
+                        <i class="fab fa-safari"></i>
+                    </div>
+                    <div class="mac-dock-item" id="mail-dock">
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                    <div class="mac-dock-item active" id="system-preferences-dock">
+                        <i class="fas fa-cog"></i>
+                    </div>
+                    <div class="mac-dock-item" id="appstore-dock">
+                        <i class="fab fa-app-store"></i>
+                    </div>
+                    <div class="mac-dock-item" id="terminal-dock">
+                        <i class="fas fa-terminal"></i>
+                    </div>
+                    <div class="mac-dock-item" id="music-dock">
+                        <i class="fas fa-music"></i>
+                    </div>
+                    <div class="mac-dock-divider"></div>
+                    <div class="mac-dock-item" id="applications-dock">
+                        <i class="fas fa-folder"></i>
+                    </div>
+                    <div class="mac-dock-item" id="trash-dock">
+                        <i class="fas fa-trash"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Task Completion Message (initially hidden) -->
+            <div class="task-complete" style="display: none;">
+                <div class="task-complete-content">
+                    <i class="fas fa-check-circle"></i>
+                    <h3>Task Completed!</h3>
+                    <p>You've successfully configured the HTTP proxy settings.</p>
+                    <button class="next-task-btn">Try Another Task</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Instructions Panel -->
+        <div class="instructions-panel">
+            <div class="instructions-header">
+                <h3>Mac OS Proxy Settings Practice</h3>
+                <button class="instructions-toggle"><i class="fas fa-chevron-down"></i></button>
+            </div>
+            <div class="instructions-content">
+                <p>Practice configuring proxy settings on a Mac:</p>
+                <ol>
+                    <li>Click on the System Preferences icon in the dock</li>
+                    <li>Click on "Network" in System Preferences</li>
+                    <li>Click the "Advanced..." button</li>
+                    <li>Go to the "Proxies" tab</li>
+                    <li>Select the proxy type you want to configure</li>
+                    <li>Enter your proxy server details</li>
+                    <li>Click "OK" then "Apply" to save settings</li>
+                </ol>
+                <div class="current-task">
+                    <h4>Current Task:</h4>
+                    <ol>
+                        <li>First, open Safari from the dock and click "Check My IP" to see your current IP</li>
+                        <li>Next, configure HTTP Proxy with server: proxy.example.com and port: 8080</li>
+                        <li>After setting up the proxy, check your IP again in Safari to see the change</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set the background image directly using JavaScript
+            document.body.style.backgroundImage = "url('https://storage.googleapis.com/replit/images/1715951336465_f71e8f0b04e1aedf0e1c33d2ef81adb2.png')";
+
+            // Set the current time in the menu bar clock
+            updateClock();
+            setInterval(updateClock, 60000); // Update every minute
+
+            // Window reference variables
+            const systemPreferencesWindow = document.getElementById('system-preferences');
+            const finderWindow = document.getElementById('finder-window');
+            const networkSettingsWindow = document.getElementById('network-settings');
+            const advancedNetworkSettings = document.getElementById('advanced-network-settings');
+            const safariWindow = document.getElementById('safari-window');
+            const notificationCenter = document.querySelector('.notification-center');
+            
+            // IP check variables
+            let ipCheckHistory = [];
+            let proxyConfigured = false;
+            
+            // Make Finder visible by default
+            if (finderWindow) {
+                finderWindow.style.display = 'flex';
+            }
+            
+            // Window Close buttons
+            const closeSystemPreferences = document.getElementById('close-system-preferences');
+            const closeFinder = document.getElementById('close-finder');
+            const closeNetworkSettings = document.getElementById('close-network-settings');
+            const closeAdvancedSettings = document.getElementById('close-advanced-settings');
+            const closeSafari = document.getElementById('close-safari');
+            
+            if (closeSystemPreferences) {
+                closeSystemPreferences.addEventListener('click', function() {
+                    systemPreferencesWindow.style.display = 'none';
+                });
+            }
+            
+            if (closeFinder) {
+                closeFinder.addEventListener('click', function() {
+                    finderWindow.style.display = 'none';
+                });
+            }
+            
+            if (closeNetworkSettings) {
+                closeNetworkSettings.addEventListener('click', function() {
+                    networkSettingsWindow.style.display = 'none';
+                });
+            }
+            
+            if (closeAdvancedSettings) {
+                closeAdvancedSettings.addEventListener('click', function() {
+                    advancedNetworkSettings.style.display = 'none';
+                });
+            }
+            
+            if (closeSafari) {
+                closeSafari.addEventListener('click', function() {
+                    safariWindow.style.display = 'none';
+                });
+            }
+
+            // Desktop icon interactions
+            const desktopIcons = document.querySelectorAll('.desktop-icon');
+            if (desktopIcons.length > 0) {
+                desktopIcons.forEach(icon => {
+                    const text = icon.querySelector('span').textContent.trim();
+                    
+                    icon.addEventListener('click', function() {
+                        if (text === 'Applications') {
+                            finderWindow.style.display = 'flex';
+                        }
+                        else if (text === 'Trash') {
+                            // Could do something with trash
+                        }
+                    });
+                });
+            }
+            
+            // Finder applications icons
+            const finderAppIcons = document.querySelectorAll('.file-icon');
+            if (finderAppIcons.length > 0) {
+                finderAppIcons.forEach(icon => {
+                    icon.addEventListener('click', function() {
+                        if (this.id === 'system-preferences-icon') {
+                            systemPreferencesWindow.style.display = 'flex';
+                            finderWindow.style.display = 'none';
+                        } else if (this.id === 'safari-icon') {
+                            safariWindow.style.display = 'flex';
+                            finderWindow.style.display = 'none';
+                        }
+                    });
+                });
+            }
+            
+            // Network grid item click in System Preferences
+            const networkGridItem = document.querySelector('.mac-grid-item-network');
+            if (networkGridItem) {
+                networkGridItem.addEventListener('click', function() {
+                    systemPreferencesWindow.style.display = 'none';
+                    networkSettingsWindow.style.display = 'flex';
+                });
+            }
+            
+            // Advanced button click in Network Settings
+            const advancedBtn = document.getElementById('advanced-btn');
+            if (advancedBtn) {
+                advancedBtn.addEventListener('click', function() {
+                    advancedNetworkSettings.style.display = 'flex';
+                });
+            }
+            
+            // Advanced settings buttons
+            const advancedCancel = document.getElementById('advanced-cancel');
+            const advancedOk = document.getElementById('advanced-ok');
+            
+            if (advancedCancel) {
+                advancedCancel.addEventListener('click', function() {
+                    advancedNetworkSettings.style.display = 'none';
+                });
+            }
+            
+            if (advancedOk) {
+                advancedOk.addEventListener('click', function() {
+                    // Check if the HTTP proxy is configured correctly for the task
+                    const webProxyCheckbox = document.getElementById('web-proxy');
+                    if (webProxyCheckbox && webProxyCheckbox.checked) {
+                        const proxyServerInput = document.querySelector('#web-proxy-panel input[type="text"]');
+                        const proxyPortInput = document.querySelector('#web-proxy-panel input.small-input');
+                        
+                        if (proxyServerInput && proxyPortInput) {
+                            const proxyServer = proxyServerInput.value.trim();
+                            const proxyPort = proxyPortInput.value.trim();
+                            
+                            // Check if the values match the current task requirements
+                            if (proxyServer === 'proxy.example.com' && proxyPort === '8080') {
+                                // Task completed successfully
+                                advancedNetworkSettings.style.display = 'none';
+                                networkSettingsWindow.style.display = 'none';
+                                showTaskComplete();
+                                
+                                // Update proxy status
+                                proxyConfigured = true;
+                                
+                                // Add suggestion to check IP
+                                const taskCompleteContent = document.querySelector('.task-complete-content');
+                                if (taskCompleteContent) {
+                                    const checkIpSuggestion = document.createElement('p');
+                                    checkIpSuggestion.textContent = 'Now open Safari and click "Check My IP" to verify your proxy is working!';
+                                    checkIpSuggestion.style.color = '#0071e3';
+                                    taskCompleteContent.insertBefore(checkIpSuggestion, taskCompleteContent.querySelector('.next-task-btn'));
+                                }
+                                
+                                // Add a notification
+                                setTimeout(function() {
+                                    if (notificationCenter) {
+                                        const newNotification = document.createElement('div');
+                                        newNotification.className = 'notification-item';
+                                        newNotification.innerHTML = `
+                                            <div class="notification-title">Proxy Settings Updated</div>
+                                            <div class="notification-content">HTTP Proxy has been configured successfully.</div>
+                                            <div class="notification-time">Just now</div>
+                                        `;
+                                        
+                                        const notificationList = notificationCenter.querySelector('.notification-list');
+                                        if (notificationList) {
+                                            notificationList.prepend(newNotification);
+                                        }
+                                    }
+                                }, 2000);
+                            }
+                        }
+                    }
+                    
+                    advancedNetworkSettings.style.display = 'none';
+                });
+            }
+            
+            // Proxy checkbox toggling and showing corresponding panels
+            const proxyCheckboxes = document.querySelectorAll('.proxy-checkbox');
+            const proxyDetailPanels = document.querySelectorAll('.proxy-detail-panel');
+            const proxyInfoText = document.querySelector('.proxy-info-text');
+            
+            if (proxyCheckboxes.length > 0) {
+                proxyCheckboxes.forEach(checkbox => {
+                    checkbox.addEventListener('change', function() {
+                        // Hide all panels first
+                        proxyDetailPanels.forEach(panel => {
+                            panel.style.display = 'none';
+                        });
+                        
+                        // Show info text if no checkbox is checked
+                        let anyChecked = false;
+                        proxyCheckboxes.forEach(cb => {
+                            if (cb.checked) {
+                                anyChecked = true;
+                            }
+                        });
+                        
+                        if (proxyInfoText) {
+                            proxyInfoText.style.display = anyChecked ? 'none' : 'block';
+                        }
+                        
+                        // Show the corresponding panel for the checked checkbox
+                        if (this.checked) {
+                            const panelId = this.id + '-panel';
+                            const panel = document.getElementById(panelId);
+                            if (panel) {
+                                panel.style.display = 'block';
+                            }
+                        }
+                    });
+                });
+            }
+            
+            // Authentication checkbox toggling
+            const authCheckboxes = document.querySelectorAll('#http-proxy-auth, #https-proxy-auth, #socks-proxy-auth, #ftp-proxy-auth');
+            
+            if (authCheckboxes.length > 0) {
+                authCheckboxes.forEach(checkbox => {
+                    checkbox.addEventListener('change', function() {
+                        const authDetailsPanel = this.closest('.proxy-detail-panel').querySelector('.proxy-auth-details');
+                        if (authDetailsPanel) {
+                            authDetailsPanel.style.display = this.checked ? 'flex' : 'none';
+                        }
+                    });
+                });
+            }
+            
+            // Dock item clicks
+            const dockItems = document.querySelectorAll('.mac-dock-item');
+            if (dockItems.length > 0) {
+                dockItems.forEach(item => {
+                    item.addEventListener('click', function() {
+                        const id = this.id;
+                        
+                        // Hide all windows first
+                        if (finderWindow) finderWindow.style.display = 'none';
+                        if (systemPreferencesWindow) systemPreferencesWindow.style.display = 'none';
+                        if (networkSettingsWindow) networkSettingsWindow.style.display = 'none';
+                        if (advancedNetworkSettings) advancedNetworkSettings.style.display = 'none';
+                        if (safariWindow) safariWindow.style.display = 'none';
+                        
+                        // Show the appropriate window
+                        if (id === 'finder-dock') {
+                            if (finderWindow) finderWindow.style.display = 'flex';
+                        } else if (id === 'system-preferences-dock') {
+                            if (systemPreferencesWindow) systemPreferencesWindow.style.display = 'flex';
+                        } else if (id === 'safari-dock') {
+                            if (safariWindow) {
+                                safariWindow.style.display = 'flex';
+                                // Reset the IP check loading state
+                                document.getElementById('ip-loading').style.display = 'none';
+                                document.getElementById('ip-results').style.display = 'none';
+                            }
+                        }
+                        
+                        // Set the active dock item
+                        dockItems.forEach(di => di.classList.remove('active'));
+                        this.classList.add('active');
+                    });
+                });
+            }
+            
+            // Menu bar item clicks
+            const menuItems = document.querySelectorAll('.mac-menu-item');
+            if (menuItems.length > 0) {
+                menuItems.forEach(item => {
+                    item.addEventListener('click', function() {
+                        const id = this.id;
+                        
+                        if (id === 'finder-menu') {
+                            if (finderWindow) {
+                                finderWindow.style.display = 'flex';
+                                if (systemPreferencesWindow) systemPreferencesWindow.style.display = 'none';
+                                if (networkSettingsWindow) networkSettingsWindow.style.display = 'none';
+                            }
+                        }
+                        
+                        // Toggle notification center when user icon is clicked
+                        if (this.classList.contains('mac-user')) {
+                            if (notificationCenter) {
+                                notificationCenter.style.display = notificationCenter.style.display === 'none' ? 'block' : 'none';
+                            }
+                        }
+                    });
+                });
+            }
+            
+            // Apple logo menu
+            const appleLogoMenu = document.querySelector('.mac-apple-logo');
+            if (appleLogoMenu) {
+                appleLogoMenu.addEventListener('click', function() {
+                    if (systemPreferencesWindow) {
+                        systemPreferencesWindow.style.display = 'flex';
+                        if (finderWindow) finderWindow.style.display = 'none';
+                        if (networkSettingsWindow) networkSettingsWindow.style.display = 'none';
+                        if (advancedNetworkSettings) advancedNetworkSettings.style.display = 'none';
+                    }
+                });
+            }
+            
+            // Instructions panel toggle
+            const instructionsToggle = document.querySelector('.instructions-toggle');
+            const instructionsContent = document.querySelector('.instructions-content');
+            
+            if (instructionsToggle && instructionsContent) {
+                instructionsToggle.addEventListener('click', function() {
+                    const isVisible = instructionsContent.style.display !== 'none';
+                    instructionsContent.style.display = isVisible ? 'none' : 'block';
+                    this.innerHTML = isVisible ? '<i class="fas fa-chevron-up"></i>' : '<i class="fas fa-chevron-down"></i>';
+                });
+            }
+            
+            // Click away from notification center to close it
+            document.addEventListener('click', function(e) {
+                const notificationCenter = document.querySelector('.notification-center');
+                const userIcon = document.querySelector('.mac-user');
+                
+                if (notificationCenter && notificationCenter.style.display !== 'none') {
+                    if (!notificationCenter.contains(e.target) && e.target !== userIcon) {
+                        notificationCenter.style.display = 'none';
+                    }
+                }
+            });
+            
+            // Next task button
+            const nextTaskBtn = document.querySelector('.next-task-btn');
+            if (nextTaskBtn) {
+                nextTaskBtn.addEventListener('click', function() {
+                    hideTaskComplete();
+                    resetProxySettings();
+                    
+                    // Open system preferences window again
+                    if (systemPreferencesWindow) systemPreferencesWindow.style.display = 'flex';
+                });
+            }
+            
+            // IP Check functionality
+            const checkIpBtn = document.getElementById('check-ip-btn');
+            if (checkIpBtn) {
+                checkIpBtn.addEventListener('click', function() {
+                    // Show loading indicator
+                    document.getElementById('ip-loading').style.display = 'flex';
+                    document.getElementById('ip-results').style.display = 'none';
+                    
+                    // Simulate IP check with a delay
+                    setTimeout(function() {
+                        const ipResults = document.getElementById('ip-results');
+                        const ipLoading = document.getElementById('ip-loading');
+                        
+                        if (ipResults && ipLoading) {
+                            // Hide loading indicator and show results
+                            ipLoading.style.display = 'none';
+                            ipResults.style.display = 'block';
+                            
+                            // Generate random IP for simulation
+                            let ipAddress, location, isp;
+                            const proxyIndicator = document.getElementById('proxy-indicator');
+                            
+                            if (proxyConfigured) {
+                                // After proxy configuration
+                                ipAddress = '185.46.212.' + Math.floor(Math.random() * 255);
+                                location = 'Amsterdam, Netherlands';
+                                isp = 'Proxy Server LTD';
+                                
+                                if (proxyIndicator) {
+                                    proxyIndicator.textContent = 'Proxy Detected';
+                                    proxyIndicator.className = 'status-detected';
+                                }
+                            } else {
+                                // Before proxy configuration
+                                ipAddress = '203.0.113.' + Math.floor(Math.random() * 255);
+                                location = 'New York, United States';
+                                isp = 'Example ISP Inc.';
+                                
+                                if (proxyIndicator) {
+                                    proxyIndicator.textContent = 'No Proxy Detected';
+                                    proxyIndicator.className = 'status-not-detected';
+                                }
+                            }
+                            
+                            // Update the IP information
+                            document.getElementById('ip-address').textContent = ipAddress;
+                            document.getElementById('ip-location').textContent = location;
+                            document.getElementById('ip-isp').textContent = isp;
+                            
+                            // Add to history
+                            const now = new Date();
+                            const timeString = now.toLocaleTimeString();
+                            const historyEntry = {
+                                time: timeString,
+                                ip: ipAddress,
+                                proxy: proxyConfigured
+                            };
+                            
+                            ipCheckHistory.unshift(historyEntry);
+                            updateIpHistory();
+                        }
+                    }, 2000);
+                });
+            }
+            
+            // Function to update IP history display
+            function updateIpHistory() {
+                const historyList = document.getElementById('ip-history-list');
+                if (!historyList) return;
+                
+                historyList.innerHTML = '';
+                
+                if (ipCheckHistory.length === 0) {
+                    historyList.innerHTML = '<div class="ip-history-item">No history available yet. Check your IP to see the results.</div>';
+                    return;
+                }
+                
+                // Show only the last 5 entries
+                const displayHistory = ipCheckHistory.slice(0, 5);
+                
+                displayHistory.forEach(entry => {
+                    const historyItem = document.createElement('div');
+                    historyItem.className = 'ip-history-item';
+                    historyItem.innerHTML = `
+                        <div>IP: <strong>${entry.ip}</strong> - 
+                            <span class="${entry.proxy ? 'status-detected' : 'status-not-detected'}">
+                                ${entry.proxy ? 'Proxy Detected' : 'No Proxy'}
+                            </span>
+                        </div>
+                        <div class="ip-history-time">${entry.time}</div>
+                    `;
+                    historyList.appendChild(historyItem);
+                });
+            }
+            
+            // Add Safari controls
+            const safariRefreshBtn = document.querySelector('.safari-control-btn:nth-child(3)');
+            if (safariRefreshBtn) {
+                safariRefreshBtn.addEventListener('click', function() {
+                    if (checkIpBtn) {
+                        checkIpBtn.click();
+                    }
+                });
+            }
+            
+            // Make windows draggable
+            makeDraggable(finderWindow);
+            makeDraggable(systemPreferencesWindow);
+            makeDraggable(networkSettingsWindow);
+            makeDraggable(advancedNetworkSettings);
+            makeDraggable(safariWindow);
+        });
+
+        // Helper Functions
+
+        function updateClock() {
+            const clockElement = document.getElementById('mac-clock');
+            if (clockElement) {
+                const now = new Date();
+                let hours = now.getHours();
+                let minutes = now.getMinutes();
+                const ampm = hours >= 12 ? 'PM' : 'AM';
+                
+                hours = hours % 12;
+                hours = hours ? hours : 12; // 0 should be displayed as 12
+                minutes = minutes < 10 ? '0' + minutes : minutes;
+                
+                clockElement.textContent = hours + ':' + minutes + ' ' + ampm;
+            }
+        }
+
+        function showTaskComplete() {
+            const taskComplete = document.querySelector('.task-complete');
+            if (taskComplete) {
+                taskComplete.style.display = 'flex';
+            }
+        }
+
+        function hideTaskComplete() {
+            const taskComplete = document.querySelector('.task-complete');
+            if (taskComplete) {
+                taskComplete.style.display = 'none';
+            }
+        }
+
+        function resetProxySettings() {
+            // Uncheck all proxy checkboxes
+            const proxyCheckboxes = document.querySelectorAll('.proxy-checkbox');
+            proxyCheckboxes.forEach(checkbox => {
+                checkbox.checked = false;
+            });
+            
+            // Hide all proxy detail panels
+            const proxyDetailPanels = document.querySelectorAll('.proxy-detail-panel');
+            proxyDetailPanels.forEach(panel => {
+                panel.style.display = 'none';
+            });
+            
+            // Show the proxy info text
+            const proxyInfoText = document.querySelector('.proxy-info-text');
+            if (proxyInfoText) {
+                proxyInfoText.style.display = 'block';
+            }
+            
+            // Reset input fields
+            const inputFields = document.querySelectorAll('.proxy-detail-panel input[type="text"], .proxy-detail-panel input[type="password"]');
+            inputFields.forEach(input => {
+                input.value = '';
+            });
+            
+            // Uncheck authentication checkboxes
+            const authCheckboxes = document.querySelectorAll('#http-proxy-auth, #https-proxy-auth, #socks-proxy-auth, #ftp-proxy-auth');
+            authCheckboxes.forEach(checkbox => {
+                checkbox.checked = false;
+            });
+            
+            // Hide auth details sections
+            const authDetails = document.querySelectorAll('.proxy-auth-details');
+            authDetails.forEach(detail => {
+                detail.style.display = 'none';
+            });
+        }
+
+        // Make windows draggable
+        function makeDraggable(element) {
+            if (!element) return;
+            
+            let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+            
+            const header = element.querySelector('.mac-window-header');
+            if (header) {
+                header.onmousedown = dragMouseDown;
+            }
+            
+            function dragMouseDown(e) {
+                e = e || window.event;
+                e.preventDefault();
+                
+                // Get the mouse cursor position at startup
+                pos3 = e.clientX;
+                pos4 = e.clientY;
+                document.onmouseup = closeDragElement;
+                
+                // Call a function whenever the cursor moves
+                document.onmousemove = elementDrag;
+            }
+            
+            function elementDrag(e) {
+                e = e || window.event;
+                e.preventDefault();
+                
+                // Calculate the new cursor position
+                pos1 = pos3 - e.clientX;
+                pos2 = pos4 - e.clientY;
+                pos3 = e.clientX;
+                pos4 = e.clientY;
+                
+                // Set the element's new position
+                const newTop = (element.offsetTop - pos2);
+                const newLeft = (element.offsetLeft - pos1);
+                
+                // Make sure window doesn't go off screen
+                const maxTop = window.innerHeight - 50; // Allow some part of window to remain visible
+                const maxLeft = window.innerWidth - 50;
+                
+                if (newTop > 24 && newTop < maxTop) { // Keep below menu bar
+                    element.style.top = newTop + "px";
+                }
+                
+                if (newLeft > -element.offsetWidth/2 && newLeft < maxLeft) {
+                    element.style.left = newLeft + "px";
+                    element.style.transform = 'none'; // Remove auto-centering
+                }
+            }
+            
+            function closeDragElement() {
+                // Stop moving when mouse button is released
+                document.onmouseup = null;
+                document.onmousemove = null;
+            }
+        }
+    </script>
+</body>
+</html>
